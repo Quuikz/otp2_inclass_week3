@@ -1,13 +1,9 @@
 pipeline {
     agent any
 
-    options {
-        timestamps()
-        disableConcurrentBuilds()
-    }
-
     tools {
         maven 'maven'
+        git 'Default'
         git 'Default'
     }
 
@@ -23,7 +19,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'master', url:'https://github.com/Quuikz/otp2_inclass_week2'
+                git branch: 'main', url:'https://github.com/Quuikz/otp2_inclass_week2'
             }
         }
 
