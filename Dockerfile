@@ -35,12 +35,12 @@ RUN wget https://download2.gluonhq.com/openjfx/21/openjfx-21_linux-x64_bin-sdk.z
     && unzip /tmp/openjfx.zip -d /opt \
     && rm /tmp/openjfx.zip
 
-RUN mvn -f pom.xml clean package -DskipTests
-
 RUN wget https://download2.gluonhq.com/openjfx/21/openjfx-21_linux-aarch64_bin-sdk.zip -O /tmp/openjfx.zip; \
     fi \
     && unzip /tmp/openjfx.zip -d /opt \
     && rm /tmp/openjfx.zip
+
+RUN mvn -f pom.xml clean package -DskipTests
 
 CMD java \
     --module-path /opt/javafx-sdk-21/lib\
