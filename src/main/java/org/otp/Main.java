@@ -6,17 +6,19 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.util.Locale;
-import java.util.ResourceBundle;
 
 public class Main extends Application {
+    LocalizationService localizationService = LocalizationService.getInstance();
 
     @Override
     public void start(Stage stage) throws IOException {
-        ResourceBundle bundle = ResourceBundle.getBundle("org.otp.messages", Locale.US);
-        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/org/otp/fuel-calculator-view.fxml"), bundle);
+        localizationService.setCurrentLanguage("en-US");
+        
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/org/otp/fuel-calculator-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
-        stage.setTitle(bundle.getString("app.title"));
+
+
+        stage.setTitle(localizationService.getString("app.title"));
         stage.setScene(scene);
         stage.setMinWidth(540);
         stage.setMinHeight(360);

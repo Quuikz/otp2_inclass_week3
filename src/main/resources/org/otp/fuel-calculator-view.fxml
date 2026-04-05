@@ -16,7 +16,7 @@
     </padding>
 
     <HBox spacing="8.0">
-        <Label text="%language.label"/>
+        <Label text="Language:"/>
         <Button fx:id="btnEN" text="EN" onAction="#onEnglishSelected"/>
         <Button fx:id="btnFR" text="FR" onAction="#onFrenchSelected"/>
         <Button fx:id="btnJP" text="JP" onAction="#onJapaneseSelected"/>
@@ -29,18 +29,18 @@
             <ColumnConstraints hgrow="ALWAYS"/>
         </columnConstraints>
 
-        <Label fx:id="lblDistance" text="%distance.label" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-        <TextField fx:id="txtDistance" promptText="%distance.prompt" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+        <Label fx:id="lblDistance" text="Distance (km)" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtDistance" promptText="Example: 180" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
-        <Label fx:id="lblConsumption" text="%consumption.label" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-        <TextField fx:id="txtConsumption" promptText="%consumption.prompt" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+        <Label fx:id="lblConsumption" text="Fuel Consumption (L/100 km)" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtConsumption" promptText="Example: 6.5" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
-        <Label fx:id="lblPrice" text="%price.label" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-        <TextField fx:id="txtPrice" promptText="%price.prompt" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+        <Label fx:id="lblPrice" text="Fuel Price (per liter)" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtPrice" promptText="Example: 2.05" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
     </GridPane>
 
-    <Button fx:id="btnCalculate" text="%calculate.button" onAction="#onCalculate" maxWidth="Infinity" VBox.vgrow="NEVER"/>
+    <Button fx:id="btnCalculate" text="Calculate Trip Cost" onAction="#onCalculate" maxWidth="Infinity" VBox.vgrow="NEVER"/>
 
-    <Label fx:id="lblResult" text="%result.placeholder" wrapText="true"/>
+    <Label fx:id="lblResult" text="Result will appear here." wrapText="true"/>
 </VBox>
 

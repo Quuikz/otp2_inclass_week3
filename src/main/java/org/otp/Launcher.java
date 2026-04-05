@@ -11,4 +11,3 @@ public final class Launcher {
         Application.launch(Main.class, args);
     }
 }
-
