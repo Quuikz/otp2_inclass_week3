@@ -5,6 +5,8 @@ ARG TARGETARCH
 
 # Set environment variables
 ENV DISPLAY=host.docker.internal:0
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
 WORKDIR .
 
 # 2. Copy pom first to leverage Docker layer caching
@@ -15,6 +17,8 @@ RUN apt-get update && apt-get install -y \
     fonts-liberation \
     fonts-dejavu-core \
     fonts-noto-core \
+    fonts-noto-ui-core \
+    fonts-noto-extra \
     fonts-noto-cjk \
     fontconfig \
     libfreetype6 \
@@ -28,7 +32,7 @@ RUN apt-get update && apt-get install -y \
     libxrender1 \
     libxext6 \
     libxrandr2 \
-    && locale-gen ja_JP.UTF-8 \
+    && locale-gen en_US.UTF-8 ru_RU.UTF-8 fa_IR.UTF-8 ja_JP.UTF-8 \
     && fc-cache -f \
     && rm -rf /var/lib/apt/lists/*
 
