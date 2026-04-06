@@ -9,7 +9,7 @@ pipeline {
     environment {
        PATH = "/Applications/Docker.app/Contents/Resources/bin:/usr/local/bin:${env.PATH}"
        DOCKERHUB_CREDENTIALS_ID = 'dockerHub'
-       DOCKERHUB_REPO = 'rikukuikka/otp2_localization_week2'
+       DOCKERHUB_REPO = 'rikukuikka/otp2_localization_week3'
        DOCKER_IMAGE_TAG = 'latest'
 
        BUILD_IMAGE_NAME = 'ui-localization'
@@ -18,7 +18,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url:'https://github.com/Quuikz/otp2_inclass_week2'
+                git branch: 'main', url:'https://github.com/Quuikz/otp2_inclass_week3'
             }
         }
 

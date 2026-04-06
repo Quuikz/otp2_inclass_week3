@@ -1,16 +1,33 @@
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: otp2-week2-ci
-spec:
-  backoffLimit: 0
-  ttlSecondsAfterFinished: 300
-  template:
-    spec:
-      restartPolicy: Never
-      containers:
-        - name: maven-build
-          image: ui-localization:latest
-          imagePullPolicy: IfNotPresent
-          command: ["mvn", "-B", "-ntp", "clean", "test", "package"]
+services:
+  db:
+    image: mariadb:11
+    container_name: otp2-week3-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: fuel_calculator_localization
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./database/db_creation.sql:/docker-entrypoint-initdb.d/01_db_creation.sql:ro
+      - ./database/seed_localization_strings.sql:/docker-entrypoint-initdb.d/02_seed_localization_strings.sql:ro
 
+  app:
+    image: ${APP_IMAGE:-rikukuikka/otp2_localization_week3:latest}
+    container_name: otp2-week3-app
+    depends_on:
+      - db
+    environment:
+      DB_URL: jdbc:mariadb://db:3306/
+      DB_NAME: fuel_calculator_localization
+      DB_USER: root
+      DB_PASSWORD: password
+      DISPLAY: ${DISPLAY:-host.docker.internal:0}
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+
+volumes:
+  db_data:
+
+#  Then execute docker compose up --build

@@ -25,6 +25,7 @@ public class FuelModel {
 
             statement.executeUpdate();
             connection.commit();
+            System.out.println("Calculation record saved successfully to database.");
         } catch (SQLException ex) {
             try {
                 connection.rollback();
