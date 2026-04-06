@@ -1,183 +1,207 @@
-# SEP2: Database Localization Assignment (Fall 2026)
+# SEP2: Database Localization Assignment
 
-## Week 3 / AD
+Fuel Consumption and Trip Cost Calculator with database-driven localization.
 
-## Description of the Exercise (Extend Week 2 Assignment with DB)
+This JavaFX application lets the user enter:
 
-### Fuel Consumption and Trip Cost Calculator with Multi-Language Support and Database Integration
-
-This exercise demonstrates how to build a JavaFX application that calculates fuel consumption and total trip cost with multi-language support (English, French, Japanese, and Persian).
-
-Users enter:
 - Trip distance
 - Fuel consumption rate
 - Fuel price
 
-The application calculates the required fuel and total cost and displays results in the selected language.
+It then calculates:
 
-All calculation records must be stored in a database, and UI messages must be loaded from database tables instead of property files.
+- Required fuel
+- Total trip cost
 
-> **Mandatory in-class assignment:** This assignment is directly related to your project implementation. Students who fail to submit the assignment in Oma will receive **0** for Sprint 6 implementation. You are required to submit screenshots of the running application along with the project's GitHub repository link.
+All UI text is loaded from the database, and every successful calculation is stored in `calculation_records`.
 
-## Summary of Tasks
+> **Important:** This is a mandatory in-class assignment. The finished app and screenshots must be submitted together with the GitHub repository link.
 
-- Read UI messages from a database table instead of `ResourceBundle` property files
-- Save calculation records into the `calculation_records` table using a `CalculationService` class
-- Implement database-driven localization for all UI text
+## Features
 
-## 1. Create the Database
+- JavaFX UI defined with FXML
+- Dynamic language switching
+- Database-backed localization strings
+- Saved calculation history in MariaDB/MySQL
+- Supported language tags:
+  - `en-US`
+  - `fr-FR`
+  - `ja-JP`
+  - `fa-IR` (Persian)
 
-A sample database is shown below. You may adjust it if necessary.
+## Project Structure
 
-```sql
-CREATE DATABASE IF NOT EXISTS fuel_calculator_localization
-CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
-USE fuel_calculator_localization;
-
-CREATE TABLE IF NOT EXISTS calculation_records (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  distance DOUBLE NOT NULL,
-  consumption DOUBLE NOT NULL,
-  price DOUBLE NOT NULL,
-  total_fuel DOUBLE NOT NULL,
-  total_cost DOUBLE NOT NULL,
-  language VARCHAR(10),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS localization_strings (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  `key` VARCHAR(100) NOT NULL,
-  value VARCHAR(255) NOT NULL,
-  language VARCHAR(10) NOT NULL,
-  UNIQUE KEY unique_key_lang (`key`, `language`)
-);
+```text
+database/
+  db_creation.sql
+  seed_localization_strings.sql
+src/main/java/org/otp/
+  CalculationRecord.java
+  DatabaseConnection.java
+  FuelCalculatorController.java
+  FuelModel.java
+  Launcher.java
+  LocalizationService.java
+  Main.java
+src/main/resources/org/otp/
+  fuel-calculator-view.fxml
+deployment.yaml
+Dockerfile
+Jenkinsfile
+pom.xml
 ```
 
-## 2. Add `CalculationService` Class
+## Database Schema
 
-Create a class that connects to MySQL/MariaDB and stores calculation records.
+The application uses a database named `fuel_calculator_localization` with two tables.
 
-Requirements:
-- Save calculation record (`distance`, `consumption`, `price`, `total_fuel`, `total_cost`, `language`)
-- Handle database connection properly
-- Use prepared statements to prevent SQL injection
-- Implement proper error handling
+### `calculation_records`
 
-Required methods:
-- `saveCalculation(CalculationRecord record)` - saves a calculation record
-- `getConnection()` - establishes database connection
+Stores each calculation performed by the user.
 
-## 3. Add `LocalizationService` Class
+| Column | Type | Description |
+| --- | --- | --- |
+| `id` | INT AUTO_INCREMENT | Primary key |
+| `distance` | DOUBLE | Trip distance entered by the user |
+| `consumption` | DOUBLE | Fuel consumption rate |
+| `price` | DOUBLE | Fuel price |
+| `total_fuel` | DOUBLE | Calculated required fuel |
+| `total_cost` | DOUBLE | Calculated trip cost |
+| `language` | VARCHAR(10) | Language tag used for the calculation |
+| `created_at` | TIMESTAMP | Record creation time |
 
-Create a class that fetches localized UI strings from the database.
+### `localization_strings`
 
-Requirements:
-- Query `localization_strings` table based on selected language
-- Return a map of key-value pairs
-- Handle database connection properly
-- Cache loaded strings for performance optimization
+Stores the localized UI text used by the app.
 
-Required methods:
-- `loadStrings(String language)` - loads all UI strings for a language
-- `getString(String key)` - returns a specific localized string
-- `getAllKeys()` - returns all available keys for current language
+| Column | Type | Description |
+| --- | --- | --- |
+| `id` | INT AUTO_INCREMENT | Primary key |
+| `key` | VARCHAR(100) | UI message key such as `app.title` |
+| `value` | VARCHAR(255) | Localized text |
+| `language` | VARCHAR(10) | Language tag such as `en-US` |
 
-## 4. Database Connection Management
+The `(key, language)` pair is unique.
 
-Create a `DatabaseConnection` class including:
+## Database Setup
 
-```java
-public class DatabaseConnection {
-    private static final String URL = "jdbc:mysql://localhost:3306/fuel_calculator_localization";
-    private static final String USER = "root";
-    private static final String PASSWORD = "your_password";
+### 1) Create the schema
 
-    public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(URL, USER, PASSWORD);
-    }
-}
+Run `database/db_creation.sql` in MariaDB/MySQL.
+
+```bash
+mysql -u root -p < database/db_creation.sql
 ```
 
-Requirements:
-- Database URL configuration
-- Username and password (configurable via external properties file)
-- Proper connection handling (open/close)
-- Exception handling for connection failures
+### 2) Seed localization data
 
-## 5. Main Components and Flow (Similar to Week 2)
+After creating the schema, import `database/seed_localization_strings.sql`.
 
-### FXML Layout
+```bash
+mysql -u root -p < database/seed_localization_strings.sql
+```
 
-- UI defined using FXML
-- Includes labels, text fields, calculate button, and result display
-- Language buttons (EN, FR, JP, IR) for dynamic switching
+### 3) Verify the seed data
 
-### Controller Class
+The seed file currently contains translations for:
 
-- Handles user interactions
-- Uses `LocalizationService` to load language resources from database
-- Updates UI dynamically with strings from database
-- Calls `CalculationService` to save records after successful calculation
+- English: `en-US`
+- French: `fr-FR`
+- Japanese: `ja-JP`
+- Persian: `fa-IR`
 
-## 6. Controller Logic (Update to Support DB)
+## Configuration
 
-### Language Support
+The application reads database settings from environment variables via `.env`.
 
-- `setLanguage(locale)` loads strings from database based on locale
-- Updates UI labels dynamically using loaded strings from `localization_strings` table
-- Displays an error if database connection fails or strings are not found
-- No property files should be used
+Required variables:
 
-## 7. Application Flow
+```env
+DB_URL=jdbc:mariadb://localhost:3306/
+DB_NAME=fuel_calculator_localization
+DB_USER=root
+DB_PASSWORD=password
+```
+
+Notes:
+
+- `DB_URL` should end with `/` because the application appends `DB_NAME` to it.
+- If you use Docker, the database host is `db` inside the container network.
+- The current container setup in `deployment.yaml` uses MariaDB 11 and maps the database port to `3307` on the host.
+
+## Build and Run
+
+### Local run
+
+1. Make sure MariaDB/MySQL is running.
+2. Import the schema and seed scripts.
+3. Create a `.env` file in the project root.
+4. Start the app with Maven:
+
+```bash
+mvn clean javafx:run
+```
+
+### Docker run
+
+The repository includes `deployment.yaml` for a Docker-based setup.
+
+```bash
+docker compose -f deployment.yaml up --build
+```
+
+If you use the container setup, keep in mind that JavaFX may require a working display/X11 configuration on your system.
+
+## Application Flow
 
 ### Initialization
 
-- Default language: English
-- Establish database connection
-- Load English strings from `localization_strings` table
-- Initialize UI with loaded strings from database
+- Default language is English.
+- The app loads localized strings from `localization_strings`.
+- The UI is initialized from database values, not property files.
 
-### Language Change
+### Language switching
 
-- Buttons switch locale
-- Query database for strings in the new language
-- Update UI labels with new strings from database
-- Maintain current calculation values
+- Buttons switch between EN, FR, JP, and IR.
+- The UI text is refreshed from the database for the selected language.
+- Existing input values remain in the text fields.
 
-### Calculation Process
+### Calculation process
 
-1. User enters values in text fields
-2. User clicks **Calculate** button
-3. Validate input values (positive numbers)
-4. Compute total fuel and total cost
-5. Display localized result message with calculated values
-6. Save calculation record to `calculation_records` table
-7. Display success confirmation or error message
+1. Enter distance, consumption, and price.
+2. Click **Calculate**.
+3. Validate that the values are numeric and non-negative.
+4. Compute required fuel and total cost.
+5. Show a localized result message.
+6. Save the calculation in `calculation_records`.
+7. Show success or error feedback.
 
-## Submission Requirements
+## Repository Submission Checklist
 
-### 1. GitHub Repository Including
+Make sure the GitHub repository includes:
 
-- Source code (Java files, FXML, CSS)
-- Database schema file (`schema.sql`)
-- `Dockerfile`
-- `Jenkinsfile`
-- `docker-compose.yml` (optional)
-- `README` with setup instructions
+- [ ] Java source files
+- [ ] FXML and CSS resources
+- [ ] Database schema script (`schema.sql` or equivalent SQL files)
+- [ ] `Dockerfile`
+- [ ] `Jenkinsfile`
+- [ ] `README.md` with setup and run instructions
+- [ ] Optional `docker-compose.yml` / compose file if used
 
-### 2. Screenshots Showing
+## Screenshot Checklist
 
-- `calculation_records` table with at least 3 records showing:
-  `distance`, `consumption`, `price`, `total_fuel`, `total_cost`, `language`, `timestamp`
-- `localization_strings` table with key-value pairs for all four languages (EN, FR, JP, IR)
-- Application screenshots in all four languages (EN, FR, JP, IR) showing calculations
-- Your name tag visible in all screenshots
+Submit screenshots showing:
 
-### 3. Database Configuration
+- [ ] `calculation_records` table with at least 3 rows
+- [ ] `localization_strings` table with all four languages
+- [ ] The application running in English
+- [ ] The application running in French
+- [ ] The application running in Japanese
+- [ ] The application running in Persian
+- [ ] Your name tag visible in every screenshot
 
-- Provide clear instructions for setting up the database in `README`
-- Document database connection configuration requirements
-- Include sample data insertion script (optional but recommended)
+## Notes
 
+- The seed data uses language tags such as `en-US` and `fa-IR`.
+- If you change the database host, user, or password, update your `.env` file accordingly.
+- If localization text does not appear, verify that the seed script was imported successfully.

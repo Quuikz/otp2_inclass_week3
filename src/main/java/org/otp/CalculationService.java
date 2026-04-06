@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public class FuelModel {
+public class CalculationService {
 
     private static final String INSERT_CALCULATION_SQL = """
             INSERT INTO calculation_records

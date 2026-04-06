@@ -14,7 +14,10 @@ services:
       - ./database/seed_localization_strings.sql:/docker-entrypoint-initdb.d/02_seed_localization_strings.sql:ro
 
   app:
-    image: ${APP_IMAGE:-rikukuikka/otp2_localization_week3:latest}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: rikukuikka/otp2_localization_week3:latest
     container_name: otp2-week3-app
     depends_on:
       - db
@@ -23,7 +26,7 @@ services:
       DB_NAME: fuel_calculator_localization
       DB_USER: root
       DB_PASSWORD: password
-      DISPLAY: ${DISPLAY:-host.docker.internal:0}
+      DISPLAY: 192.168.0.177:0
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
 

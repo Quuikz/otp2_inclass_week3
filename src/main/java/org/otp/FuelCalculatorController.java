@@ -49,7 +49,7 @@ public class FuelCalculatorController {
     @FXML
     private Button btnIR;
 
-    private final FuelModel fuelModel = new FuelModel();
+    private final CalculationService calculationService = new CalculationService();
     private final LocalizationService localizationService = LocalizationService.getInstance();
 
     @FXML
@@ -71,7 +71,7 @@ public class FuelCalculatorController {
                     localizationService.getCurrentLanguage());
 
             try{
-                fuelModel.saveCalculation(record);
+                calculationService.saveCalculation(record);
             } catch (Exception ex) {
                 System.out.println("Failed to save calculation: " + ex.getMessage());
                 return;

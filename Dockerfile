@@ -20,9 +20,13 @@ RUN apt-get update && apt-get install -y \
     locales \
     wget \
     unzip \
+    xvfb \
     libgtk-3-0 \
     libgbm1 \
     libx11-6 \
+    libxrender1 \
+    libxext6 \
+    libxrandr2 \
     && locale-gen ja_JP.UTF-8 \
     && fc-cache -f \
     && rm -rf /var/lib/apt/lists/*
@@ -32,11 +36,15 @@ RUN wget https://download2.gluonhq.com/openjfx/21/openjfx-21_linux-x64_bin-sdk.z
     && unzip /tmp/openjfx.zip -d /opt \
     && rm /tmp/openjfx.zip
 
-# 5. Build the application
-RUN mvn -f pom.xml clean package -DskipTests
+# 5. Build the application and collect runtime dependencies
+RUN mvn -f pom.xml clean package dependency:copy-dependencies -DskipTests
 
-# 6. Run the application
+# 6. Run the application (jar is not executable with -jar, so launch the main class on classpath)
 CMD ["java", \
+     "-Djava.awt.headless=false", \
+     "-Djavafx.platform=gtk", \
+     "-Dprism.order=sw", \
      "--module-path", "/opt/javafx-sdk-21/lib", \
      "--add-modules", "javafx.fxml,javafx.graphics,javafx.controls,javafx.base", \
-     "-jar", "target/otp2_inclass_week2-1.0-SNAPSHOT.jar"]
+     "-cp", "target/otp2_inclass_week3-1.0-SNAPSHOT.jar:target/dependency/*", \
+     "org.otp.Launcher"]
