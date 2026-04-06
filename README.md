@@ -33,7 +33,7 @@ All UI text is loaded from the database, and every successful calculation is sto
 
 ```text
 database/
-  db_creation.sql
+  schema.sql
   seed_localization_strings.sql
 src/main/java/org/otp/
   CalculationRecord.java
@@ -87,10 +87,10 @@ The `(key, language)` pair is unique.
 
 ### 1) Create the schema
 
-Run `database/db_creation.sql` in MariaDB/MySQL.
+Run `database/schema.sql` in MariaDB/MySQL.
 
 ```bash
-mysql -u root -p < database/db_creation.sql
+mysql -u root -p < database/schema.sql
 ```
 
 ### 2) Seed localization data
@@ -165,40 +165,6 @@ If you use the container setup, keep in mind that JavaFX may require a working d
 - Buttons switch between EN, FR, JP, and IR.
 - The UI text is refreshed from the database for the selected language.
 - Existing input values remain in the text fields.
-
-### Calculation process
-
-1. Enter distance, consumption, and price.
-2. Click **Calculate**.
-3. Validate that the values are numeric and non-negative.
-4. Compute required fuel and total cost.
-5. Show a localized result message.
-6. Save the calculation in `calculation_records`.
-7. Show success or error feedback.
-
-## Repository Submission Checklist
-
-Make sure the GitHub repository includes:
-
-- [ ] Java source files
-- [ ] FXML and CSS resources
-- [ ] Database schema script (`schema.sql` or equivalent SQL files)
-- [ ] `Dockerfile`
-- [ ] `Jenkinsfile`
-- [ ] `README.md` with setup and run instructions
-- [ ] Optional `docker-compose.yml` / compose file if used
-
-## Screenshot Checklist
-
-Submit screenshots showing:
-
-- [ ] `calculation_records` table with at least 3 rows
-- [ ] `localization_strings` table with all four languages
-- [ ] The application running in English
-- [ ] The application running in French
-- [ ] The application running in Japanese
-- [ ] The application running in Persian
-- [ ] Your name tag visible in every screenshot
 
 ## Notes
 

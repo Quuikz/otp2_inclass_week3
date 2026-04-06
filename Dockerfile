@@ -1,10 +1,11 @@
 FROM maven:3.9-eclipse-temurin-21
 
 LABEL authors="riku"
+ARG TARGETARCH
 
 # Set environment variables
 ENV DISPLAY=host.docker.internal:0
-WORKDIR /app
+WORKDIR .
 
 # 2. Copy pom first to leverage Docker layer caching
 COPY . .
@@ -31,10 +32,16 @@ RUN apt-get update && apt-get install -y \
     && fc-cache -f \
     && rm -rf /var/lib/apt/lists/*
 
-# 4. Download JavaFX SDK
-RUN wget https://download2.gluonhq.com/openjfx/21/openjfx-21_linux-x64_bin-sdk.zip -O /tmp/openjfx.zip \
-    && unzip /tmp/openjfx.zip -d /opt \
-    && rm /tmp/openjfx.zip
+# 4. Download JavaFX SDK that matches container architecture
+RUN set -eux; \
+    case "${TARGETARCH}" in \
+      arm64) FX_ARCH="aarch64" ;; \
+      amd64) FX_ARCH="x64" ;; \
+      *) echo "Unsupported TARGETARCH: ${TARGETARCH}" >&2; exit 1 ;; \
+    esac; \
+    wget "https://download2.gluonhq.com/openjfx/21/openjfx-21_linux-${FX_ARCH}_bin-sdk.zip" -O /tmp/openjfx.zip; \
+    unzip /tmp/openjfx.zip -d /opt; \
+    rm /tmp/openjfx.zip
 
 # 5. Build the application and collect runtime dependencies
 RUN mvn -f pom.xml clean package dependency:copy-dependencies -DskipTests
