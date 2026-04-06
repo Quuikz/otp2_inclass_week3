@@ -1,0 +1,3 @@
+cd /Users/riku/5coding/Metropolia/otp2_inclass_week3
+docker compose -f deployment.yaml down -v
+docker compose -f deployment.yaml up --build
