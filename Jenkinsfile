@@ -12,6 +12,11 @@ pipeline {
        DOCKERHUB_REPO = 'rikukuikka/otp2_localization_week3'
        DOCKER_IMAGE_TAG = 'latest'
 
+       DB_URL = 'jdbc:mariadb://localhost:3306/'
+       DB_NAME = 'fuel_calculator_localization'
+       DB_USER = 'fuel_calculator_user'
+       DB_PASSWORD = 'password'
+
        BUILD_IMAGE_NAME = 'ui-localization'
     }
 
