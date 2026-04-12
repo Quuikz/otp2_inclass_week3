@@ -7,13 +7,15 @@ ARG TARGETARCH
 ENV DISPLAY=host.docker.internal:0
 ENV LANG=en_US.UTF-8
 ENV LC_ALL=en_US.UTF-8
-WORKDIR .
+WORKDIR /app
 
-# 2. Copy pom first to leverage Docker layer caching
-COPY . .
+# 2. Copy only required build inputs
+COPY pom.xml /app/pom.xml
+COPY src /app/src
 
-# 3. Install Font and GUI dependencies
-RUN apt-get update && apt-get install -y \
+# 3. Install dependencies, fetch JavaFX, build app, and prepare non-root runtime user
+RUN set -eux; \
+    apt-get update && apt-get install -y --no-install-recommends \
     fonts-liberation \
     fonts-dejavu-core \
     fonts-noto-core \
@@ -31,13 +33,7 @@ RUN apt-get update && apt-get install -y \
     libx11-6 \
     libxrender1 \
     libxext6 \
-    libxrandr2 \
-    && locale-gen en_US.UTF-8 ru_RU.UTF-8 fa_IR.UTF-8 ja_JP.UTF-8 \
-    && fc-cache -f \
-    && rm -rf /var/lib/apt/lists/*
-
-# 4. Download JavaFX SDK that matches container architecture
-RUN set -eux; \
+    libxrandr2; \
     case "${TARGETARCH}" in \
       arm64) FX_ARCH="aarch64" ;; \
       amd64) FX_ARCH="x64" ;; \
@@ -45,12 +41,17 @@ RUN set -eux; \
     esac; \
     wget "https://download2.gluonhq.com/openjfx/21/openjfx-21_linux-${FX_ARCH}_bin-sdk.zip" -O /tmp/openjfx.zip; \
     unzip /tmp/openjfx.zip -d /opt; \
-    rm /tmp/openjfx.zip
+    rm /tmp/openjfx.zip; \
+    mvn -f /app/pom.xml clean package dependency:copy-dependencies -DskipTests; \
+    useradd --create-home --shell /bin/bash appuser; \
+    chown -R appuser:appuser /app /opt/javafx-sdk-21; \
+    locale-gen en_US.UTF-8 ru_RU.UTF-8 fa_IR.UTF-8 ja_JP.UTF-8; \
+    fc-cache -f; \
+    rm -rf /var/lib/apt/lists/*
 
-# 5. Build the application and collect runtime dependencies
-RUN mvn -f pom.xml clean package dependency:copy-dependencies -DskipTests
+USER appuser
 
-# 6. Run the application (jar is not executable with -jar, so launch the main class on classpath)
+# 4. Run the application (jar is not executable with -jar, so launch the main class on classpath)
 CMD ["java", \
      "-Djava.awt.headless=false", \
      "-Djavafx.platform=gtk", \

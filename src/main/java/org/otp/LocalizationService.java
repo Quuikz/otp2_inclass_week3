@@ -1,5 +1,7 @@
 package org.otp;
 
+import org.otp.logging.AppLogger;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -7,73 +9,70 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class LocalizationService {
 
-    private static final LocalizationService INSTANCE = new LocalizationService();
+    private static final Logger LOGGER = AppLogger.getLogger(LocalizationService.class);
     private final Map<String, Map<String, String>> allLocalizedTexts = new HashMap<>();
     private String currentLanguage;
 
-    private LocalizationService() {
-        currentLanguage = "en_US"; // default language
+    public LocalizationService() {
+        this.currentLanguage = "en_US"; // default language
     }
 
-    public static LocalizationService getInstance() {
-        return INSTANCE;
-    }
-
-    private static final String GET_LOCALIZED_TEXTS = """
-            SELECT * FROM localization_strings
+    private static final String SQLQUERY = """
+            SELECT localization_strings.language, localization_strings.key, localization_strings.value FROM localization_strings
             WHERE language = ?
             """;
 
-    private void loadLocalizedTexts(String Language) throws SQLException {
+    private void loadLocalizedTexts(String language) throws SQLException {
         Connection connection = DatabaseConnection.getDBConnection();
 
-        try (connection; PreparedStatement statement = connection.prepareStatement(GET_LOCALIZED_TEXTS)) {
-            statement.setString(1, Language);
+        try (connection; PreparedStatement statement = connection.prepareStatement(SQLQUERY)) {
+            statement.setString(1, language);
             var resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
-                String language = resultSet.getString("language");
+                String rowLanguage = resultSet.getString("language");
                 String key = resultSet.getString("key");
                 String value = resultSet.getString("value");
 
-                allLocalizedTexts.computeIfAbsent(language, k -> new HashMap<>()).put(key, value);
+                allLocalizedTexts.computeIfAbsent(rowLanguage, k -> new HashMap<>()).put(key, value);
             }
         }
     }
 
 
     public void loadStrings(String language) {
-        System.out.println("Loading localized texts for language: " + language);
+        LOGGER.fine(() -> "Loading localized texts for language: " + language);
 
         if (allLocalizedTexts.isEmpty() || !allLocalizedTexts.containsKey(language)) {
             try {
                 loadLocalizedTexts(language);
             } catch (SQLException e) {
-                System.out.println("Error loading localized texts: " + e.getMessage());
-
+                LOGGER.log(Level.WARNING, "Error loading localized texts", e);
             }
         }
     }
 
     public String getString(String key){
-        System.out.println("Getting localized text for key: " + key + " in language: " + currentLanguage);
+        LOGGER.fine(() -> "Getting localized text for key: " + key + " in language: " + currentLanguage);
 
         if(!allLocalizedTexts.containsKey(currentLanguage)){
             loadStrings(currentLanguage);
         }
-        System.out.println("Getting localized text for key: " + key + " in language: " + allLocalizedTexts.get(currentLanguage).get(key));
+        LOGGER.fine(() -> "Resolved key " + key + " for language: " + currentLanguage);
         return allLocalizedTexts.get(currentLanguage).get(key);
     }
 
     public List<String> getAllKeys() {
-        System.out.println("Getting all keys for language: " + currentLanguage);
+        LOGGER.fine(() -> "Getting all keys for language: " + currentLanguage);
         if(!allLocalizedTexts.containsKey(currentLanguage)){
             loadStrings(currentLanguage);
         }
-        System.out.println("Getting all keys for language: " + allLocalizedTexts.get(currentLanguage).keySet().stream().toList());
+        LOGGER.fine(() -> "Loaded key count for " + currentLanguage + ": " + allLocalizedTexts.get(currentLanguage).size());
         return allLocalizedTexts.get(currentLanguage).keySet().stream().toList();
     }
 

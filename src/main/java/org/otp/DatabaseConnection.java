@@ -8,6 +8,9 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public class DatabaseConnection {
+    private DatabaseConnection() {
+        // Private constructor to prevent instantiation
+    }
 
     private static HikariDataSource dataSource;
 
