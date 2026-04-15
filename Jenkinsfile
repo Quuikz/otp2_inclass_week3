@@ -29,7 +29,7 @@ pipeline {
 
         stage('Run Tests') {
             steps {
-                sh 'mvn -f pom.xml clean test'
+                sh 'mvn -f pom.xml clean verify'
             }
         }
 
