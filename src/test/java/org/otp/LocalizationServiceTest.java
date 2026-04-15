@@ -6,6 +6,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +30,18 @@ class LocalizationServiceTest {
 
     private static void putLanguage(LocalizationService service, String language, Map<String, String> values) {
         localizedTexts(service).put(language, new HashMap<>(values));
+    }
+
+    private static void invokeLoadLocalizedTexts(LocalizationService service, String language) {
+        try {
+            Method method = LocalizationService.class.getDeclaredMethod("loadLocalizedTexts", String.class);
+            method.setAccessible(true);
+            method.invoke(service, language);
+        } catch (NoSuchMethodException | IllegalAccessException e) {
+            throw new AssertionError("Unable to invoke loadLocalizedTexts", e);
+        } catch (InvocationTargetException e) {
+            throw new AssertionError("loadLocalizedTexts threw an unexpected exception", e.getCause());
+        }
     }
 
     private static final class LazyLoadingLocalizationService extends LocalizationService {
@@ -119,6 +133,23 @@ class LocalizationServiceTest {
 
         assertEquals("Distance", service.getString("distance.label"));
         assertEquals(1, service.loadCalls);
+    }
+
+    @Test
+    @DisplayName("loadLocalizedTexts loads database rows into the language cache")
+    void testLoadLocalizedTextsLoadsDatabaseRows() {
+        LocalizationService service = new LocalizationService();
+
+        invokeLoadLocalizedTexts(service, "en-US");
+        service.setCurrentLanguage("en-US");
+
+        assertTrue(localizedTexts(service).containsKey("en-US"));
+        assertEquals("Fuel Consumption and Trip Cost Calculator", service.getString("app.title"));
+
+        List<String> keys = service.getAllKeys();
+        assertTrue(keys.contains("app.title"));
+        assertTrue(keys.contains("calculate.button"));
+        assertEquals(12, keys.size());
     }
 
     @Test
