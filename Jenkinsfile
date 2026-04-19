@@ -60,7 +60,9 @@ pipeline {
                     sh """
                     ${tool 'SonarQube 8.0.1'}/bin/sonar-scanner \\
                     -Dsonar.projectKey=devops-demo \\
-                    -Dsonar.sources=src \\
+                    -Dsonar.sources=src/main/java \\
+                    -Dsonar.tests=src/test/java \\
+                    -Dsonar.java.binaries=target/classes \\
                     -Dsonar.projectName=DevOps-Demo \\
                     -Dsonar.host.url=$SONAR_HOST_URL \\
                     -Dsonar.token=$SONAR_AUTH_TOKEN \\
