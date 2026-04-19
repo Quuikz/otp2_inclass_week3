@@ -18,7 +18,7 @@ pipeline {
        DB_PASSWORD = 'password'
 
        BUILD_IMAGE_NAME = 'ui-localization'
-       SKIP_DOCKER = 'true'
+       SKIP_DOCKER = 'false'
     }
 
     stages {
