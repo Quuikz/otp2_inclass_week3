@@ -56,7 +56,7 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('SonarQube 8.0.1') {
+                withSonarQubeEnv('SonarQubeLocalServer') {
                     sh """
                     ${tool 'SonarScanner'}/bin/sonar-scanner \\
                     -Dsonar.projectKey=devops-demo \\
