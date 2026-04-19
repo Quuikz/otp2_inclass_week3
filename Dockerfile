@@ -51,6 +51,10 @@ RUN set -eux; \
 
 USER appuser
 
+# Prevent maven base-image entrypoint from trying to write under /root at runtime.
+ENV HOME=/home/appuser
+ENV MAVEN_CONFIG=/home/appuser/.m2
+
 # 4. Run the application (jar is not executable with -jar, so launch the main class on classpath)
 CMD ["java", \
      "-Djava.awt.headless=false", \

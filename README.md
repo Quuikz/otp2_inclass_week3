@@ -150,7 +150,13 @@ The repository includes `deployment.yaml` for a Docker-based setup.
 docker compose -f deployment.yaml up --build
 ```
 
-If you use the container setup, keep in mind that JavaFX may require a working display/X11 configuration on your system.
+If you use macOS, start XQuartz first so the JavaFX window can be rendered from the container.
+
+```bash
+open -a XQuartz
+xhost +localhost
+docker compose -f deployment.yaml up --build
+```
 
 ## Application Flow
 
