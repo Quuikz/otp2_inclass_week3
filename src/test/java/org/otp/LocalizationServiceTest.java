@@ -109,7 +109,7 @@ class LocalizationServiceTest {
     @ParameterizedTest
     @DisplayName("Service supports expected language codes")
     @ValueSource(strings = {"en_US", "fr_FR", "ja_JP", "fa_IR"})
-    void testMultiplLanguageSupport(String language) {
+    void testMultipleLanguageSupport(String language) {
         LocalizationService service = new LocalizationService();
         service.setCurrentLanguage(language);
         assertEquals(language, service.getCurrentLanguage());
