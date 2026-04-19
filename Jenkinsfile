@@ -53,6 +53,22 @@ pipeline {
             }
         }
 
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('SonarQube 8.0.1') {
+                    sh """
+                    ${tool 'SonarScanner'}/bin/sonar-scanner \\
+                    -Dsonar.projectKey=devops-demo \\
+                    -Dsonar.sources=src \\
+                    -Dsonar.projectName=DevOps-Demo \\
+                    -Dsonar.host.url=$SONAR_HOST_URL \\
+                    -Dsonar.token=$SONAR_AUTH_TOKEN \\
+                    -Dsonar.java.binaries=target/classes
+                    """
+                }
+            }
+}
+
         stage('Build Docker Image') {
             steps {
                 script {
