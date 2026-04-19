@@ -1,3 +1,5 @@
 cd /Users/riku/5coding/Metropolia/otp2_inclass_week3
-docker compose -f deployment.yaml down -v
+open -a XQuartz
+xhost +localhost
+docker compose -f deployment.yaml down
 docker compose -f deployment.yaml up --build
