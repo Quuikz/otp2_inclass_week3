@@ -18,6 +18,7 @@ pipeline {
        DB_PASSWORD = 'password'
 
        BUILD_IMAGE_NAME = 'ui-localization'
+       SKIP_DOCKER = 'true'
     }
 
     stages {
@@ -67,9 +68,12 @@ pipeline {
                     """
                 }
             }
-}
+        }
 
         stage('Build Docker Image') {
+            when {
+                expression { env.SKIP_DOCKER != 'true' }
+            }
             steps {
                 script {
                     docker.build("${DOCKERHUB_REPO}:${DOCKER_IMAGE_TAG}")
@@ -78,6 +82,9 @@ pipeline {
         }
 
         stage('Push Docker Image to Docker Hub') {
+            when {
+                expression { env.SKIP_DOCKER != 'true' }
+            }
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: "${DOCKERHUB_CREDENTIALS_ID}", passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {
