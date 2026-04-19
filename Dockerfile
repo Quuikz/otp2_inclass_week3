@@ -33,7 +33,9 @@ RUN set -eux; \
     libx11-6 \
     libxrender1 \
     libxext6 \
-    libxrandr2; \
+    libxrandr2 \
+    libxtst6 \
+    libxi6; \
     case "${TARGETARCH}" in \
       arm64) FX_ARCH="aarch64" ;; \
       amd64) FX_ARCH="x64" ;; \
@@ -54,12 +56,14 @@ USER appuser
 # Prevent maven base-image entrypoint from trying to write under /root at runtime.
 ENV HOME=/home/appuser
 ENV MAVEN_CONFIG=/home/appuser/.m2
+ENV LD_LIBRARY_PATH=/opt/javafx-sdk-21/lib
 
 # 4. Run the application (jar is not executable with -jar, so launch the main class on classpath)
 CMD ["java", \
      "-Djava.awt.headless=false", \
      "-Djavafx.platform=gtk", \
      "-Dprism.order=sw", \
+     "-Djava.library.path=/opt/javafx-sdk-21/lib", \
      "--module-path", "/opt/javafx-sdk-21/lib", \
      "--add-modules", "javafx.fxml,javafx.graphics,javafx.controls,javafx.base", \
      "-cp", "target/otp2_inclass_week3-1.0-SNAPSHOT.jar:target/dependency/*", \
